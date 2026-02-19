@@ -1,0 +1,182 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#define MAXCOLS 3
+#define MAXFILS 3
+
+#define MIN 1
+#define MAX 3
+
+#define CIRCLE 1
+#define CROSS 2
+
+#define CONEX 2
+
+typedef struct
+{	
+	int nfils, ncols;		//fils, cols del tablero
+	int symbol[MAXFILS][MAXCOLS];	//simbolos por casillas
+	int conex[CONEX];		//conexiones maximas
+} tboard;
+
+void print_tictactoe(tboard board, int turn, int win);
+void play_tictactoe (tboard *board, int turn);
+int comprove_conex(tboard *board);
+
+int main ()
+{
+	int turn=1, plays=0, win=0;
+	tboard board;
+	
+	do{
+		system("clear");
+		print_tictactoe(board, turn, win);
+		
+		play_tictactoe(&board, turn);
+		
+		win=comprove_conex(&board);
+		
+		turn++;
+		plays++;
+	   }while(plays < 9 && win == 0);
+	
+	if(win == CIRCLE)
+	{
+		system("clear");
+		print_tictactoe(board, turn, win);
+		printf("Felicidades! Los circulos ganan la partida! O_O\n");
+	}
+	
+	else if(win == CROSS)
+	{
+		system("clear");
+		print_tictactoe(board, turn, win);
+		printf("Felicidades! Las cruces ganan la partida! X_X\n");
+	}
+	
+	else if(win == 0)
+		printf("Que pena! La partida acabó en tablas...\n");
+	
+}
+
+void print_tictactoe(tboard board, int turn, int win)
+{		
+	int f, c;
+	
+	printf("  TICTACTOE\n");
+	
+	printf("  | A  B  C\n");
+	printf("------------\n");
+	
+	for(f=0; f < MAXFILS; f++)
+	{	
+		printf("%d |", f+1);
+		for(c=0; c < MAXCOLS; c++)
+		{	
+			if(board.symbol[f][c] == 1)
+				printf(" O ");
+			
+			else if(board.symbol[f][c] == 2)
+				printf(" X ");
+			
+			else
+				printf("   ");
+		}
+		
+	printf("\n");
+	
+	}
+	
+	if(turn%2 == 0 && win == 0)
+		printf("TURN: %d (CROSS)\n", turn);
+	
+	else if(turn%2 != 0 && win == 0)
+		printf("TURN: %d (CIRCLE)\n", turn);
+}
+
+void play_tictactoe (tboard *board, int turn)
+{
+	int  f, c;
+	char cc;
+	
+	do{
+		
+		do{
+			printf("Introduce coordenadas (Ej: 2B):");
+			scanf("%d%c%*c", &f, &cc);
+			
+			if(cc == 'A' || cc == 'a')
+			c=0;
+	
+			else if(cc == 'B' || cc == 'b')
+			c=1;
+		
+			else if(cc == 'C' || cc == 'c')
+			c=2;
+		
+			else 
+			c=-1;
+		
+		   }while(f < MIN || f > MAX  || c < 0 || 2 > 'c');
+		   
+		f--;
+		
+	}while(c == -1);
+	
+	if(turn%2)
+		board->symbol[f][c] = CIRCLE; //introducimos circulo
+		
+	else
+		board->symbol[f][c] = CROSS; //introducimos cruz
+	
+}
+
+int comprove_conex(tboard *board)
+{
+	int f, c;
+	
+	for(f=0; f < MAXFILS && (board->conex[CROSS] != 3 && board->conex[CIRCLE] != 3); f++)
+	{	
+		if(board->symbol[f][0] == CIRCLE &&  board->symbol[f][1] == CIRCLE && board->symbol[f][2] == CIRCLE)
+			board->conex[CIRCLE]= 3;
+																//conexiones horizontales
+		else if(board->symbol[f][0] == CROSS &&  board->symbol[f][1] == CROSS && board->symbol[f][2] == CROSS)
+		board->conex[CROSS]= 3;
+	}	
+	
+	
+	
+	for(c=0; c < MAXCOLS && (board->conex[CROSS] != 3 && board->conex[CIRCLE] != 3); c++)
+	{	
+		if(board->symbol[0][c] == CIRCLE && board->symbol[1][c] == CIRCLE && board->symbol[2][c] == CIRCLE)
+			board->conex[CIRCLE]= 3;
+																//conexiones verticales
+		else if(board->symbol[0][c] == CROSS && board->symbol[1][c] == CROSS && board->symbol[2][c] == CROSS)
+			board->conex[CROSS]= 3;
+	}
+
+
+
+	if (board->symbol[0][0] == CROSS && board->symbol[1][1] == CROSS && board->symbol[2][2] == CROSS)
+		board->conex[CROSS]= 3;
+																//conexiones diagonales
+	else if(board->symbol[0][2] == CROSS && board->symbol[1][1] == CROSS && board->symbol[2][0] == CROSS)
+		board->conex[CROSS]= 3;
+		
+	if (board->symbol[0][0] == CIRCLE && board->symbol[1][1] == CIRCLE && board->symbol[2][2] == CIRCLE)
+		board->conex[CIRCLE]= 3;
+																
+	else if(board->symbol[0][2] == CIRCLE && board->symbol[1][1] == CIRCLE && board->symbol[2][0] == CIRCLE)
+		board->conex[CIRCLE]= 3;
+	
+	if(board->conex[CIRCLE] == 3)
+		return CIRCLE;
+		
+	else if(board->conex[CROSS] == 3)
+		return CROSS;
+	
+	else 
+		return 0;
+		
+}
